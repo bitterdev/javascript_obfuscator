@@ -1,5 +1,17 @@
 {
   "name": "bitter/javascript_obfuscator",
   "type": "concrete5-package",
-  "description": "Javascript Obfuscator is a Concrete CMS add-on that hides your inline Javascript code by obfuscating it, improving security and protecting your source logic."
+  "description": "Javascript Obfuscator is a Concrete CMS add-on that hides your inline Javascript code by obfuscating it, improving security and protecting your source logic.",
+  "require": {
+    "tholu/php-packer": "0.2.0",
+    "ext-dom": "*"
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "sh ./cleanup-vendor-code.sh"
+    ],
+    "post-update-cmd": [
+      "sh ./cleanup-vendor-code.sh"
+    ]
+  }
 }

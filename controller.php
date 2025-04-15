@@ -2,9 +2,15 @@
 
 namespace Concrete\Package\JavascriptObfuscator;
 
-use Bitter\JavascriptObfuscator\Provider\ServiceProvider;
-use Concrete\Core\Entity\Package as PackageEntity;
 use Concrete\Core\Package\Package;
+use Concrete\Core\Page\Page;
+use Concrete\Core\User\Group\GroupRepository;
+use Concrete\Core\User\User;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Tholu\Packer\Packer;
+use DOMDocument;
+use DOMXPath;
 
 class Controller extends Package
 {
@@ -24,22 +30,43 @@ class Controller extends Package
 
     public function on_start()
     {
-        /** @var ServiceProvider $serviceProvider */
+        require_once('vendor/autoload.php');
+
+        /** @var EventDispatcherInterface $eventDispatcher */
         /** @noinspection PhpUnhandledExceptionInspection */
-        $serviceProvider = $this->app->make(ServiceProvider::class);
-        $serviceProvider->register();
-    }
+        $eventDispatcher = $this->app->make(EventDispatcherInterface::class);
 
-    public function install(): PackageEntity
-    {
-        $pkg = parent::install();
-        $this->installContentFile("data.xml");
-        return $pkg;
-    }
+        $eventDispatcher->addListener('on_page_output', function ($event) {
+            /** @var $event GenericEvent */
+            $htmlCode = $event->getArgument('contents');
 
-    public function upgrade()
-    {
-        parent::upgrade();
-        $this->installContentFile("data.xml");
+            $u = new User();
+
+            /** @var GroupRepository $groupRepository */
+            $groupRepository = $this->app->make(GroupRepository::class);
+            $adminGroup = $groupRepository->getGroupByID(ADMIN_GROUP_ID);
+
+            /** @var $c Page */
+            $c = Page::getCurrentPage();
+
+            if (!($u->isSuperUser() || (is_object($adminGroup) && $u->inGroup($adminGroup)) ||
+                ($c instanceof Page && ($c->isEditMode())))) {
+
+                $doc = new DOMDocument();
+                @$doc->loadHTML($htmlCode);
+                $xpath = new DOMXPath($doc);
+
+                foreach ($xpath->query('//script') as $scriptNode) {
+                    if (strlen($scriptNode->nodeValue) > 0) {
+                        $packer = new Packer($scriptNode->nodeValue);
+                        $scriptNode->nodeValue = $packer->pack();
+                    }
+                }
+
+                $htmlCode = $doc->saveHTML();
+            }
+
+            $event->setArgument('contents', $htmlCode);
+        });
     }
 }

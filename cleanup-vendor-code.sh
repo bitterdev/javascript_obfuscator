@@ -1,0 +1,1 @@
+rm -rf vendor/tholu/php-packer/tests
