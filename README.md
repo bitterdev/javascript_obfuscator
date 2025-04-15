@@ -1,0 +1,3 @@
+# Javascript Obfuscator 
+
+Javascript Obfuscator is a Concrete CMS add-on that allows you to automatically obfuscate inline Javascript code on your website. By transforming readable code into a format that is difficult to interpret, this add-on helps protect your intellectual property and prevents unauthorized copying or reverse engineering of your scripts. Obfuscation adds an extra layer of security by making it more challenging for attackers to understand, modify, or inject malicious code into your scripts. It also reduces the exposure of sensitive logic that may be embedded in client-side code. Using this add-on can contribute to your site's overall data protection strategy, especially in contexts where compliance and code privacy are important.
