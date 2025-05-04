@@ -15,7 +15,7 @@ use DOMXPath;
 class Controller extends Package
 {
     protected string $pkgHandle = 'javascript_obfuscator';
-    protected string $pkgVersion = '0.0.2';
+    protected string $pkgVersion = '0.0.3';
     protected $appVersionRequired = '9.0.0';
 
     public function getPackageDescription(): string
